@@ -2,30 +2,29 @@
 
 It's from [hyperledger-composer](https://github.com/hyperledger-archives/composer).
 
-Projects in `./packages` is unmodified.
+Projects in `./runtime/packages` is unmodified.
 
 ## Usage
-1. build docker image
+
+1. place your network in `./def`
 ```shell
-docker build -t composer-runtime-hlfv1 .
+mkdir -p def
+mv /path/to/bnd/* def
 ```
 
-2. run
+2. build docker image
 ```shell
-export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_TLS_ENABLED="false"
-# Replace this with your business network name
-export CORE_CHAINCODE_ID_NAME="BusinessNetworkName"
+docker build -t citacloud/composer-runtime-hlfv1 .
 ```
 
+3.. run
 ```shell
-# Replace /path/to/bnd with your bnd path
+# Replace `CORE_CHAINCODE_ID_NAME` with your business network name
 docker run \
-    -e CORE_PEER_TLS_ENABLED \
-    -e CORE_PEER_LOCALMSPID \
-    -e CORE_CHAINCODE_ID_NAME \
+    -e CORE_CHAINCODE_ID_NAME="trade-network" \
+    -e CORE_PEER_LOCALMSPID="Org1MSP" \
+    -e CORE_PEER_TLS_ENABLED="false" \
     --network=host \
-    -v /path/to/bnd:/def \
     -d \
     citacloud/composer-runtime-hlfv1 \
     --peer.address 127.0.0.1:7052
