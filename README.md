@@ -2,31 +2,38 @@
 
 It's from [hyperledger-composer](https://github.com/hyperledger-archives/composer).
 
-Projects in `./packages` is unmodified.
+Projects in `./runtime/packages` is unmodified.
 
 ## Usage
-1. build docker image
+
+1. build this basic image.
 ```shell
-docker build -t composer-runtime-hlfv1 .
+docker build -t citacloud/composer-runtime-hlfv1 .
 ```
 
-2. run
-```shell
-export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_TLS_ENABLED="false"
-# Replace this with your business network name
-export CORE_CHAINCODE_ID_NAME="BusinessNetworkName"
+2. build your business-network on top of this basic image.
+
+```Dockerfile
+# Add this Dockerfile in your business-network-definition folder.
+FROM citacloud/composer-runtime-hlfv1
+COPY . /bnd
+WORKDIR /bnd
+ENTRYPOINT ["node", "/runtime/packages/composer-runtime-hlfv1/bin/start-network"]
+```
+```sh
+# In your business-network-definition folder, build the docker image.
+docker build -t citacloud/trade-network:0.2.6 .
 ```
 
-```shell
-# Replace /path/to/bnd with your bnd path
+3.. run
+```sh
+# Replace `CORE_CHAINCODE_ID_NAME` with your business-network name
 docker run \
-    -e CORE_PEER_TLS_ENABLED \
-    -e CORE_PEER_LOCALMSPID \
-    -e CORE_CHAINCODE_ID_NAME \
+    -e CORE_CHAINCODE_ID_NAME="trade-network" \
+    -e CORE_PEER_LOCALMSPID="Org1MSP" \
+    -e CORE_PEER_TLS_ENABLED="false" \
     --network=host \
-    -v /path/to/bnd:/def \
     -d \
-    citacloud/composer-runtime-hlfv1 \
+    citacloud/trade-network:0.2.6 \
     --peer.address 127.0.0.1:7052
 ```
